@@ -162,6 +162,7 @@ async function renderWorkspace(appEl, scenario) {
 
   mountViewer(ws.panes.left, leftDesc, { onPage: (n) => window.__sayWorkspace.setPage(n) });
   mountViewer(ws.panes.rightBottom, rightDesc, {});
+  if (leftDesc.type === 'pdf') setPage(1);
 }
 
 async function renderHome(appEl) {
