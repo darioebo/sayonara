@@ -25,8 +25,8 @@ export function validateScenario(s) {
   if (!s.name || !String(s.name).trim()) errs.push('O cenário precisa de um nome.');
   for (const zone of ['left', 'rightBottom']) {
     const z = s[zone];
-    if (z && z.type !== 'none' && !String(z.src || '').trim()) {
-      errs.push(`A zona "${zone}" está preenchida mas sem origem (src).`);
+    if (z && z.type !== 'none' && !String(z.src || '').trim() && !z.file && !z.fileName) {
+      errs.push(`A zona "${zone}" está preenchida mas sem origem.`);
     }
   }
   return errs;

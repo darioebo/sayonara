@@ -21,7 +21,12 @@ test('validateScenario flags missing name and bad zone', () => {
   const bad = createScenario({ name: '', notes: { fileName: '', content: '' }, left: { type: 'pdf', src: '', fileName: '' }, rightBottom: blankZone() });
   const errs = validateScenario(bad);
   assert.ok(errs.some((e) => e.includes('nome')));
-  assert.ok(errs.some((e) => e.includes('src')));
+  assert.ok(errs.some((e) => e.includes('origem')));
+});
+
+test('validateScenario accepts local file as zone source', () => {
+  const s = createScenario({ name: 'Com ficheiro', notes: { fileName: '', content: '' }, left: { type: 'pdf', src: '', fileName: 'x.pdf', file: {} }, rightBottom: blankZone() });
+  assert.equal(validateScenario(s).length, 0);
 });
 
 test('searchScenarios matches name case-insensitive', () => {
