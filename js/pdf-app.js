@@ -136,14 +136,16 @@ async function renderEditor(appEl, existingId) {
   overlay.innerHTML = `
     <div class="sheet">
       <h2>${existing ? 'Editar cenário' : 'Novo cenário'}</h2>
-      <div class="field"><label>Nome do cenário</label><input type="text" data-f="name" value="${existing ? existing.name : ''}" placeholder="Ex.: Reunião semanal — Estado"></div>
+      <div class="field"><label>Nome do cenário</label><input type="text" data-f="name" placeholder="Ex.: Reunião semanal — Estado"></div>
       <div class="actions">
         <button class="btn ghost" data-act="cancel">Cancelar</button>
         <button class="btn primary" data-act="save">Guardar</button>
       </div>
     </div>`;
   document.body.appendChild(overlay);
-  overlay.querySelector('[data-f=name]').addEventListener('input', (e) => { draft.name = e.target.value; });
+  const nameInput = overlay.querySelector('[data-f=name]');
+  nameInput.value = existing ? existing.name : '';
+  nameInput.addEventListener('input', (e) => { draft.name = e.target.value; });
   overlay.querySelector('[data-act=cancel]').addEventListener('click', () => { overlay.remove(); window.location.hash = '#/'; });
   overlay.querySelector('[data-act=save]').addEventListener('click', async () => {
     if (!draft.name.trim()) { alert('O cenário precisa de um nome.'); return; }
