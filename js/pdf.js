@@ -9,20 +9,27 @@ async function ensurePdfjs() {
   return pdfjs;
 }
 
+const pdfFailed = () => '<p class="pane-empty">PDF indisponível.</p>';
+
 export async function openPdf(container, source, { onPage } = {}) {
   container.innerHTML = '';
   container.classList.add('pdf-wrap');
   const lib = await ensurePdfjs();
   let pdf;
-  if (source instanceof File || (source && source.name && typeof source.arrayBuffer === 'function')) {
-    const buf = await source.arrayBuffer();
-    pdf = await lib.getDocument({ data: buf }).promise;
-  } else if (typeof source === 'string' && source.startsWith('http')) {
-    pdf = await lib.getDocument(source).promise;
-  } else if (source && source.url) {
-    pdf = await lib.getDocument(source.url).promise;
-  } else {
-    container.innerHTML = '<p class="pane-empty">PDF indisponível.</p>';
+  try {
+    if (source instanceof File || (source && source.name && typeof source.arrayBuffer === 'function')) {
+      const buf = await source.arrayBuffer();
+      pdf = await lib.getDocument({ data: buf }).promise;
+    } else if (typeof source === 'string' && source.startsWith('http')) {
+      pdf = await lib.getDocument(source).promise;
+    } else if (source && source.url) {
+      pdf = await lib.getDocument(source.url).promise;
+    } else {
+      container.innerHTML = pdfFailed();
+      return { totalPages: 0, destroy() {} };
+    }
+  } catch (_) {
+    container.innerHTML = pdfFailed();
     return { totalPages: 0, destroy() {} };
   }
 

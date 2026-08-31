@@ -2,8 +2,50 @@ import { buildWorkspace } from './layout.js';
 import { parsePageBlocks } from './markdown.js';
 import * as db from './scenarios-db.js';
 import { createScenario, withUpdated, blankZone, validateScenario, searchScenarios } from './scenarios-core.js';
+import { openPdf } from './pdf.js';
 
-let totalPages = 0;
+const zoneFiles = new Map();
+let activeObjectUrl = null;
+
+export function rememberZoneFile(id, zone, file) {
+  if (file) zoneFiles.set(`${id}:${zone}`, file);
+}
+
+function mountViewer(container, zoneDesc, { onPage }) {
+  container.innerHTML = '';
+  const type = zoneDesc.type;
+  if (type === 'url') {
+    const f = document.createElement('iframe');
+    f.src = zoneDesc.src;
+    f.allow = 'fullscreen';
+    container.appendChild(f);
+  } else if (type === 'image') {
+    const img = document.createElement('img');
+    img.alt = '';
+    if (zoneDesc.src) {
+      img.src = zoneDesc.src;
+    } else {
+      if (activeObjectUrl) { URL.revokeObjectURL(activeObjectUrl); activeObjectUrl = null; }
+      if (zoneDesc.file) {
+        img.src = URL.createObjectURL(zoneDesc.file);
+        activeObjectUrl = img.src;
+      }
+    }
+    container.appendChild(img);
+  } else if (type === 'pdf') {
+    const file = zoneDesc.file;
+    const src = file ? file : (zoneDesc.src || null);
+    openPdf(container, src, { onPage }).then(({ totalPages }) => {
+      if (totalPages && window.__sayWorkspace) window.__sayWorkspace.totalPages = totalPages;
+    }).catch((_e) => {
+      container.innerHTML = `<p class="pane-empty">Não foi possível abrir o PDF. <button class="btn ghost" data-repick>Escolher ficheiro</button></p>`;
+      const b = container.querySelector('[data-repick]');
+      if (b) b.onclick = () => container.dispatchEvent(new CustomEvent('repick'));
+    });
+  } else {
+    container.innerHTML = '<p class="pane-empty">Zona vazia.</p>';
+  }
+}
 
 export function mount(appEl) {
   if (!window.indexedDB) { appEl.innerHTML = '<p>O navegador não suporta IndexedDB.</p>'; return; }
@@ -58,6 +100,18 @@ async function renderWorkspace(appEl, scenario) {
   };
   showBlock(null);
 
+  const leftZone = scenario.left || blankZone();
+  const rightZone = scenario.rightBottom || blankZone();
+  if (leftZone.type === 'pdf' && leftZone.file) rememberZoneFile(scenario.id, 'left', leftZone.file);
+  if (rightZone.type === 'pdf' && rightZone.file) rememberZoneFile(scenario.id, 'rightBottom', rightZone.file);
+  if (rightZone.type === 'image' && rightZone.file) rememberZoneFile(scenario.id, 'rightBottom', rightZone.file);
+  if (leftZone.type === 'image' && leftZone.file) rememberZoneFile(scenario.id, 'left', leftZone.file);
+
+  const leftDesc = { ...leftZone };
+  if (leftDesc.type === 'pdf' && !leftDesc.src) leftDesc.file = zoneFiles.get(`${scenario.id}:left`);
+  const rightDesc = { ...rightZone };
+  if (rightDesc.type === 'pdf' && !rightDesc.src) rightDesc.file = zoneFiles.get(`${scenario.id}:rightBottom`);
+
   const chrome = document.createElement('div');
   chrome.className = 'chrome';
   chrome.innerHTML = `
@@ -66,6 +120,7 @@ async function renderWorkspace(appEl, scenario) {
   document.body.appendChild(chrome);
 
   const cleanup = () => {
+    if (activeObjectUrl) { URL.revokeObjectURL(activeObjectUrl); activeObjectUrl = null; }
     statusbar.remove();
     chrome.remove();
     document.title = 'Sayonara';
@@ -90,11 +145,11 @@ async function renderWorkspace(appEl, scenario) {
 
   const setPage = (page) => {
     showBlock(page);
-    flashStatus(`Pág. ${page} / ${totalPages}`);
+    flashStatus(`Pág. ${page} / ${window.__sayWorkspace.totalPages || '?'}`);
   };
   window.__sayonara = { scenario, ws, setPage, cleanup };
   window.__saySync = { blocks, setPage };
-  window.__sayWorkspace = { ws, setPage, scenario, flashStatus, present, exit, cleanup };
+  window.__sayWorkspace = { ws, totalPages: 0, setPage, scenario, flashStatus, present, exit, cleanup };
 
   chrome.querySelector('[data-act=home]').addEventListener('click', () => {
     cleanup();
@@ -104,6 +159,9 @@ async function renderWorkspace(appEl, scenario) {
   statusbar.addEventListener('click', () => { if (ws.root.classList.contains('mode-present')) exit(); });
 
   window.addEventListener('hashchange', cleanup, { once: true });
+
+  mountViewer(ws.panes.left, leftDesc, { onPage: (n) => window.__sayWorkspace.setPage(n) });
+  mountViewer(ws.panes.rightBottom, rightDesc, {});
 }
 
 async function renderHome(appEl) {

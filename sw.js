@@ -2,7 +2,9 @@ const CACHE = 'sayonara-v1';
 const ASSETS = [
   './', './index.html', './manifest.webmanifest',
   './css/base.css', './css/app.css',
-  './js/main.js',
+  './js/main.js', './js/pdf-app.js', './js/layout.js', './js/layout-core.js',
+  './js/markdown.js', './js/scenarios-core.js', './js/scenarios-db.js', './js/pdf.js',
+  './vendor/pdfjs/pdf.min.mjs', './vendor/pdfjs/pdf.worker.min.mjs',
   './icons/favicon.png', './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png'
 ];
 
