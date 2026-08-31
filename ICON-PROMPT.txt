@@ -1,0 +1,21 @@
+PROMPT PARA GERAR O ÍCONE DO SAYONARA
+=======================================
+(Cola tudo o que está abaixo no gerador de imagem de IA — Midjourney, DALL·E, GPT Image, Flux, Stable Diffusion, etc. — e usa o resultado como íconema do app.)
+
+===
+A modern, minimal, flat app icon for "Sayonara", a presentation tool for video meetings (works on Zoom, Google Meet, WhatsApp). The icon depicts an abstract but clear representation of a "screen-sharing presentation layout": a clean window/screen with three distinct panels divided by visible thin gaps — ONE large panel on the left, and on the right TWO stacked panels (one above the other). This is the signature three-zone layout of the app: left large content area, right-top notes area, right-bottom content area.
+
+Style: Apple-inspired, ultra-clean, flat vector look, gentle soft gradients, subtle depth, rounded corners, lots of negative space. No text, no letters, no words, no watermark. Centered composition. Squared (1:1) canvas for app icon.
+
+Color palette: a calm, trust-inspiring set — soft white / off-white background, with a deep neutral charcoal or slate for the window outline, and a single muted accent color (e.g. soft indigo/blue or teal) used sparingly only for the "notes" panel to hint at the notes feature. Keep it minimal and elegant; avoid clutter and avoid multiple competing colors.
+
+The image should feel premium, professional, calm and simple — like an Apple system app icon. No photorealism, no gradients that look cheap, no drop shadows that are too heavy.
+
+IMPORTANT DIMENSIONS: Produce a SQUARE 1:1 icon at high resolution, at least 1024x1024 px, with the symbol centered and scaled to fill about 80% of the canvas with safe margins, no border frame. It will be resized automatically for PWA (512px and 192px) and used as favicon.
+===
+
+NOTAS DE USO
+============
+- Gera: PNG com fundo, e idealmente também uma variante com fundo transparente.
+- Entrega-me o ficheiro e eu faço o redimensionamento para: icons/icon-512.png, icons/icon-192.png, icons/favicon.png (e maskable se necessário).
+- O motivo central a manter em todas as variantes: 1 painel grande à esquerda + 2 painéis empilhados à direita (3 zonas com espaçamentos visíveis).
