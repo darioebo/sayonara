@@ -1,2 +1,82 @@
 #app { height: 100%; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+/* ---------- Home ---------- */
+.home { min-height: 100%; padding: 24px; max-width: 1100px; margin: 0 auto; }
+.bar { position: sticky; top: 0; display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; margin-bottom: 20px; border-radius: 16px;
+  background: var(--surface); backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--line); box-shadow: var(--shadow-1); z-index: 5; }
+.bar .brand { font-weight: 700; letter-spacing: -0.02em; font-size: 20px; }
+.bar .spacer { flex: 1; }
+.btn { border: 0; border-radius: 999px; padding: 9px 18px; font-weight: 600;
+  background: var(--surface-solid); color: var(--ink); transition: transform 100ms ease-out, background 150ms; }
+.btn:active { transform: scale(0.97); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); }
+.btn.ghost { background: transparent; border: 1px solid var(--line); }
+.grid-scenarios { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.card { background: var(--surface); backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 18px; box-shadow: var(--shadow-1);
+  transition: transform 150ms ease; }
+.card:active { transform: scale(0.99); }
+.card .name { font-weight: 650; font-size: 17px; letter-spacing: -0.01em; margin: 0 0 6px; }
+.card .meta { color: var(--ink-3); font-size: 13px; margin-bottom: 12px; }
+.card .tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.tag { font-size: 12px; padding: 3px 9px; border-radius: 999px; background: rgba(46,107,230,0.12); color: var(--accent); font-weight: 600; }
+.card .actions { display: flex; gap: 8px; margin-top: 14px; }
+.card .actions .btn { flex: 1; padding: 7px 12px; font-size: 13px; }
+
+/* ---------- Workspace ---------- */
+.workspace { position: fixed; inset: 0; display: grid; grid-template-columns: minmax(0,var(--frac-v,0.5)) 6px minmax(0,1fr); gap: var(--gap); padding: var(--gap); }
+.pane-col { display: grid; grid-template-rows: minmax(0,var(--frac-h,0.5)) 6px minmax(0,1fr); gap: var(--gap); min-width: 0; }
+.pane { background: var(--surface-solid); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; position: relative; min-height: 0; min-width: 0; }
+.pane iframe, .pane canvas, .pane img, .pane .pdf-wrap { width: 100%; height: 100%; border: 0; display: block; }
+.splitter { background: rgba(46,107,230,0.0); border-radius: 6px; transition: background 150ms; cursor: col-resize; }
+.splitter-h { cursor: row-resize; }
+.splitter:hover, .splitter.dragging { background: rgba(46,107,230,0.25); }
+.pane-title { position: absolute; top: 8px; left: 8px; z-index: 3; font-size: 11px; letter-spacing: 0.02em; color: var(--ink-3); background: rgba(0,0,0,0.35); color: #fff; padding: 2px 8px; border-radius: 999px; pointer-events: none; }
+
+/* notes pane */
+.notes { padding: 20px 24px; overflow-y: auto; height: 100%; }
+.notes h1 { font-size: 22px; } .notes h2 { font-size: 18px; margin-top: 18px; }
+.notes p { color: var(--ink-2); }
+.notes li { color: var(--ink-2); }
+.notes hr { border: 0; border-top: 1px solid var(--line); margin: 16px 0; }
+.notes code { background: rgba(0,0,0,0.06); padding: 2px 6px; border-radius: 6px; font-size: 0.9em; }
+.notes blockquote { margin: 12px 0; padding: 4px 14px; border-left: 3px solid var(--accent); color: var(--ink-2); }
+
+/* statusbar */
+.statusbar { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 20;
+  background: rgba(20,20,24,0.72); color: #fff; backdrop-filter: blur(16px) saturate(160%); -webkit-backdrop-filter: blur(16px) saturate(160%);
+  padding: 6px 16px; border-radius: 999px; font-size: 13px; opacity: 0; transition: opacity 300ms; pointer-events: none; }
+.statusbar.show { opacity: 1; }
+
+/* edit chrome (hidden in present mode) */
+.chrome { position: fixed; top: 14px; left: 50%; transform: translateX(-50%); z-index: 20; display: flex; gap: 8px;
+  background: var(--surface); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--line); padding: 6px; border-radius: 999px; box-shadow: var(--shadow-1); }
+.mode-present .chrome { display: none; }
+.mode-present .pane-title { display: none; }
+.mode-present .splitter { background: transparent; }
+.mode-present { gap: 8px; }
+
+/* ---------- Editor / modal ---------- */
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; z-index: 30; }
+.sheet { background: var(--surface-solid); border-radius: var(--radius-lg); width: min(560px, 92vw); max-height: 90vh; overflow-y: auto; padding: 24px; box-shadow: 0 24px 60px rgba(0,0,0,0.2); }
+.field { margin-bottom: 16px; }
+.field label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; }
+.field input[type=text], .field select { width: 100%; padding: 11px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); font: inherit; }
+.row { display: flex; gap: 10px; }
+.row .field { flex: 1; }
+.filebtn { display:inline-flex; align-items:center; gap:8px; border:1px dashed var(--line); border-radius:12px; padding:12px; width:100%; background: var(--surface); }
+.filebtn .fname { color: var(--ink-3); font-size: 13px; }
+.sheet .actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+.empty { text-align: center; padding: 60px 20px; color: var(--ink-3); }
+
+/* PDF viewer */
+.pdf-wrap { position: relative; overflow: auto; }
+.pdf-scroll { position: absolute; inset: 0; overflow-y: auto; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 16px; }
+.pdf-scroll canvas { box-shadow: var(--shadow-1); border-radius: 6px; }
+.pane-empty { color: var(--ink-3); display: flex; align-items: center; justify-content: center; height: 100%; }
