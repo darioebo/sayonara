@@ -26,6 +26,18 @@ test('parsePageBlocks splits on Pág markers', () => {
   assert.equal(blocks[2].page, 2);
 });
 
+test('parsePageBlocks recognizes unaccented uppercase marker', () => {
+  const blocks = parsePageBlocks('## PAG. 2\n- dados');
+  assert.equal(blocks.length, 1);
+  assert.equal(blocks[0].page, 2);
+});
+
+test('parsePageBlocks recognizes unaccented title-case marker', () => {
+  const blocks = parsePageBlocks('## Pag. 1\n- intro');
+  assert.equal(blocks.length, 1);
+  assert.equal(blocks[0].page, 1);
+});
+
 test('parsePageBlocks returns single block when no markers', () => {
   const blocks = parsePageBlocks('notas soltas');
   assert.equal(blocks.length, 1);

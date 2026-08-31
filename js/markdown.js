@@ -40,7 +40,7 @@ export function renderMarkdown(md) {
       continue;
     }
     if (list) { html.push(`</${list}>`); list = null; }
-    if (/^&gt;\s?/.test(line) === false && line.startsWith('>')) {
+    if (line.startsWith('>')) {
       if (quote !== true) { html.push('<blockquote>'); quote = true; }
       html.push(`<p>${inline(line.replace(/^>\s?/, ''))}</p>`);
       continue;
@@ -58,7 +58,7 @@ export function renderMarkdown(md) {
 export function parsePageBlocks(md) {
   const src = String(md);
   const blocks = [];
-  const marker = /^##\s+Pág\.?\s*(\d+)\s*$/i;
+  const marker = /^\s*##\s+[Pp][ÁáAa][Gg]\.?\s*(\d+)\s*$/;
   const lines = src.split(/\r?\n/);
   let currentPage = null;
   let buf = [];
