@@ -1,4 +1,5 @@
 :root {
+  color-scheme: light;
   --bg: #f2f5fb;
   --surface: rgba(255,255,255,0.72);
   --surface-solid: #ffffff;
@@ -19,6 +20,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
+    color-scheme: dark;
     --bg: #0a0a0c;
     --surface: rgba(28,28,32,0.72);
     --surface-solid: #1a1a1e;
