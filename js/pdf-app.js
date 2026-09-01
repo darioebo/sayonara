@@ -71,14 +71,14 @@ async function renderRoute(appEl) {
   }
   if (hash.startsWith('#/editor/')) {
     const id = hash.split('/')[2];
-    await editFlow(appEl, id);
+    await editFlow(appEl, id, seq);
     return;
   }
   if (hash.startsWith('#/editor')) {
-    await editFlow(appEl, null);
+    await editFlow(appEl, null, seq);
     return;
   }
-  renderHome(appEl);
+  renderHome(appEl, seq);
 }
 
 async function renderWorkspace(appEl, scenario) {
@@ -124,6 +124,9 @@ async function renderWorkspace(appEl, scenario) {
     statusbar.remove();
     chrome.remove();
     document.title = 'Sayonara';
+    delete window.__sayonara;
+    delete window.__saySync;
+    delete window.__sayWorkspace;
   };
 
   const present = () => {
@@ -163,11 +166,17 @@ async function renderWorkspace(appEl, scenario) {
   mountViewer(ws.panes.left, leftDesc, { onPage: (n) => window.__sayWorkspace.setPage(n) });
   mountViewer(ws.panes.rightBottom, rightDesc, {});
   if (leftDesc.type === 'pdf') setPage(1);
+
+  ws.panes.left.addEventListener('repick', () => {
+    cleanup();
+    window.location.hash = `#/editor/${scenario.id}`;
+  });
 }
 
-async function renderHome(appEl) {
+async function renderHome(appEl, seq) {
   appEl.innerHTML = '';
   const all = await db.listScenarios();
+  if (typeof seq === 'number' && seq !== routeSeq) return;
   const searchBox = document.createElement('input');
   searchBox.type = 'text';
   searchBox.placeholder = 'Procurar cenários…';
@@ -222,10 +231,10 @@ async function renderHome(appEl) {
         card.querySelector('.tags').appendChild(tag);
       }
       card.querySelector('[data-act=open]').addEventListener('click', () => { window.location.hash = `#/workspace/${s.id}`; });
-      card.querySelector('[data-act=duplicate]').addEventListener('click', async () => { await db.duplicateScenario(s); await renderHome(appEl); });
+      card.querySelector('[data-act=duplicate]').addEventListener('click', async () => { await db.duplicateScenario(s); await renderHome(appEl, seq); });
       card.querySelector('[data-act=edit]').addEventListener('click', () => { window.location.hash = `#/editor/${s.id}`; });
       card.querySelector('[data-act=delete]').addEventListener('click', async () => {
-        if (confirm(`Eliminar o cenário "${s.name}"?`)) { await db.deleteScenario(s.id); await renderHome(appEl); }
+        if (confirm(`Eliminar o cenário "${s.name}"?`)) { await db.deleteScenario(s.id); await renderHome(appEl, seq); }
       });
       grid.appendChild(card);
     }
@@ -235,8 +244,9 @@ async function renderHome(appEl) {
   renderList(all);
 }
 
-async function editFlow(appEl, existingId) {
+async function editFlow(appEl, existingId, seq) {
   const existing = existingId ? await db.getScenario(existingId) : null;
+  if (typeof seq === 'number' && seq !== routeSeq) return;
   const overlay = document.createElement('div');
   overlay.className = 'overlay';
   overlay.innerHTML = `
@@ -253,7 +263,8 @@ async function editFlow(appEl, existingId) {
             <option value="image">Imagem</option>
             <option value="none">Nenhuma</option>
           </select>
-          <input type="text" data-f="rsrc" placeholder="URL ou escolher ficheiro">
+          <input type="text" data-f="rsrc" placeholder="URL">
+          <button class="filebtn" data-f="rfile">Escolher ficheiro <span class="fname" data-fname="rightBottom"></span></button>
         </div>
       </div>
       <div class="actions">
@@ -307,10 +318,28 @@ async function editFlow(appEl, existingId) {
 
   const rsrcInput = overlay.querySelector('[data-f=rsrc]');
   if (draft.rightBottom.src) rsrcInput.value = draft.rightBottom.src;
+  const rtypeSelect = overlay.querySelector('[data-f=rtype]');
+  rtypeSelect.value = draft.rightBottom.type || 'none';
   overlay.querySelector('[data-f=rtype]').addEventListener('change', (e) => {
-    draft.rightBottom = { ...draft.rightBottom, type: e.target.value };
+    draft.rightBottom = { ...blankZone(), type: e.target.value };
+    rsrcInput.value = '';
+    setFileBtn('rightBottom', null);
   });
-  rsrcInput.addEventListener('input', (e) => { draft.rightBottom.src = e.target.value; });
+  const rfileBtn = overlay.querySelector('[data-f=rfile]');
+  rfileBtn.addEventListener('click', async () => {
+    const t = rtypeSelect.value;
+    const kind = t === 'image' ? 'image' : (t === 'pdf' ? 'pdf' : null);
+    if (!kind) return;
+    const f = await pickFile(kind);
+    if (!f) return;
+    draft.rightBottom = { type: t, src: '', fileName: f.name, file: f };
+    rsrcInput.value = '';
+    setFileBtn('rightBottom', f);
+  });
+  if (draft.rightBottom.fileName) setFileBtn('rightBottom', { name: draft.rightBottom.fileName });
+  rsrcInput.addEventListener('input', (e) => {
+    draft.rightBottom = { ...draft.rightBottom, src: e.target.value };
+  });
 
   nameInput.addEventListener('input', (e) => { draft.name = e.target.value; });
 
