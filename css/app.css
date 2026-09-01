@@ -29,7 +29,11 @@
 .btn:active { transform: scale(0.97); }
 .btn.primary { background: var(--accent); color: var(--accent-ink); }
 .btn.ghost { background: transparent; border: 1px solid var(--line); }
-.grid-scenarios { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.grid-scenarios { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; align-content: start; }
+.empty { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; height: 50vh; text-align: center; color: var(--ink-3); padding: 40px 20px; }
+.empty h2 { margin: 0 0 6px; color: var(--ink-2); font-size: 22px; }
+.empty p { margin: 0; }
 .card { background: var(--surface); backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
   border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 18px; box-shadow: var(--shadow-1);
@@ -87,7 +91,7 @@
 .filebtn { display:inline-flex; align-items:center; gap:8px; border:1px dashed var(--line); border-radius:12px; padding:12px; width:100%; background: var(--surface); }
 .filebtn .fname { color: var(--ink-3); font-size: 13px; }
 .sheet .actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
-.empty { text-align: center; padding: 60px 20px; color: var(--ink-3); }
+.empty { text-align: center; padding: 60px 20px; color: var(--ink-3); grid-column: 1 / -1; }
 
 /* PDF viewer */
 .pdf-wrap { position: relative; overflow: auto; }
