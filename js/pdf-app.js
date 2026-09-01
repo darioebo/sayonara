@@ -177,11 +177,6 @@ async function renderHome(appEl, seq) {
   appEl.innerHTML = '';
   const all = await db.listScenarios();
   if (typeof seq === 'number' && seq !== routeSeq) return;
-  const searchBox = document.createElement('input');
-  searchBox.type = 'text';
-  searchBox.placeholder = 'Procurar cenários…';
-  searchBox.className = 'home-search';
-
   const root = document.createElement('div');
   root.className = 'home';
   root.innerHTML = `
@@ -190,9 +185,14 @@ async function renderHome(appEl, seq) {
       <span class="spacer"></span>
       <button class="btn primary" data-act="new">＋ Novo cenário</button>
     </div>
-    <div class="search-wrap"></div>
+    <div class="search-wrap">
+      <svg class="search-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input class="home-search" type="text" placeholder="Procurar cenários…" aria-label="Procurar cenários">
+      <button class="search-clear" data-act="clear" type="button" aria-label="Limpar procura">×</button>
+    </div>
     <div data-zone="scenarios" class="grid-scenarios"></div>`;
-  root.querySelector('.search-wrap').appendChild(searchBox);
+  const searchBox = root.querySelector('.home-search');
+  const clearBtn = root.querySelector('[data-act=clear]');
 
   const grid = root.querySelector('[data-zone=scenarios]');
   const renderList = (list) => {
@@ -239,7 +239,13 @@ async function renderHome(appEl, seq) {
       grid.appendChild(card);
     }
   };
-  searchBox.addEventListener('input', () => renderList(searchScenarios(all, searchBox.value)));
+  const searchWrap = root.querySelector('.search-wrap');
+  const applySearch = () => {
+    searchWrap.classList.toggle('has-query', searchBox.value.length > 0);
+    renderList(searchScenarios(all, searchBox.value));
+  };
+  searchBox.addEventListener('input', applySearch);
+  clearBtn.addEventListener('click', () => { searchBox.value = ''; searchBox.focus(); applySearch(); });
   appEl.appendChild(root);
   renderList(all);
 }
