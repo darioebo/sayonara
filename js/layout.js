@@ -1,6 +1,6 @@
 import { clampFrac } from './layout-core.js';
 
-export function buildWorkspace(appEl) {
+export function buildWorkspace(appEl, active = { left: true, rightBottom: true }) {
   const root = document.createElement('div');
   root.className = 'workspace';
   root.innerHTML = `
@@ -13,13 +13,15 @@ export function buildWorkspace(appEl) {
     </section>`;
   appEl.appendChild(root);
 
+  const layoutZones = (active.left ? 1 : 0) + 1 + (active.rightBottom ? 1 : 0);
+  root.classList.toggle('layout-2z', layoutZones === 2);
+  root.classList.add('mode-edit');
+
   const panes = {
     left: root.querySelector('[data-pane="left"]'),
     rightTop: root.querySelector('[data-pane="rightTop"]'),
     rightBottom: root.querySelector('[data-pane="rightBottom"]')
   };
-
-  root.classList.add('mode-edit');
 
   let fracV = 0.5;
   let fracH = 0.5;

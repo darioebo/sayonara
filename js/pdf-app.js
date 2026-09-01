@@ -83,7 +83,12 @@ async function renderRoute(appEl) {
 
 async function renderWorkspace(appEl, scenario) {
   appEl.innerHTML = '';
-  const ws = buildWorkspace(appEl);
+  const leftZone = scenario.left || blankZone();
+  const rightZone = scenario.rightBottom || blankZone();
+  const ws = buildWorkspace(appEl, {
+    left: leftZone.type !== 'none',
+    rightBottom: rightZone.type !== 'none'
+  });
   const statusbar = document.createElement('div');
   statusbar.className = 'statusbar';
   document.body.appendChild(statusbar);
@@ -100,8 +105,6 @@ async function renderWorkspace(appEl, scenario) {
   };
   showBlock(null);
 
-  const leftZone = scenario.left || blankZone();
-  const rightZone = scenario.rightBottom || blankZone();
   if (leftZone.type === 'pdf' && leftZone.file) rememberZoneFile(scenario.id, 'left', leftZone.file);
   if (rightZone.type === 'pdf' && rightZone.file) rememberZoneFile(scenario.id, 'rightBottom', rightZone.file);
   if (rightZone.type === 'image' && rightZone.file) rememberZoneFile(scenario.id, 'rightBottom', rightZone.file);

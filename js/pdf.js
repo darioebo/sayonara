@@ -9,7 +9,7 @@ async function ensurePdfjs() {
   return pdfjs;
 }
 
-const pdfFailed = () => '<p class="pane-empty">PDF indisponível.</p>';
+const pdfFailed = (detail) => `<p class="pane-empty">PDF indisponível${detail ? ` (${detail})` : ''}. Verifica o ficheiro ou escolhe outro.</p>`;
 
 export async function openPdf(container, source, { onPage } = {}) {
   container.innerHTML = '';
@@ -17,7 +17,7 @@ export async function openPdf(container, source, { onPage } = {}) {
   const lib = await ensurePdfjs();
   let pdf;
   try {
-    if (source instanceof File || (source && source.name && typeof source.arrayBuffer === 'function')) {
+    if (source && typeof source === 'object' && typeof source.arrayBuffer === 'function') {
       const buf = await source.arrayBuffer();
       pdf = await lib.getDocument({ data: buf }).promise;
     } else if (typeof source === 'string' && source.startsWith('http')) {
@@ -25,11 +25,11 @@ export async function openPdf(container, source, { onPage } = {}) {
     } else if (source && source.url) {
       pdf = await lib.getDocument(source.url).promise;
     } else {
-      container.innerHTML = pdfFailed();
+      container.innerHTML = pdfFailed('sem origem');
       return { totalPages: 0, destroy() {} };
     }
-  } catch (_) {
-    container.innerHTML = pdfFailed();
+  } catch (e) {
+    container.innerHTML = pdfFailed(e && e.message ? e.message.split('\n')[0] : 'erro');
     return { totalPages: 0, destroy() {} };
   }
 
@@ -41,15 +41,27 @@ export async function openPdf(container, source, { onPage } = {}) {
   const totalPages = pdf.numPages;
   const pages = [];
   const renderPage = async (n) => {
-    const page = await pdf.getPage(n);
-    const viewport = page.getViewport({ scale: 1.4 });
-    const canvas = document.createElement('canvas');
-    canvas.width = viewport.width;
-    canvas.height = viewport.height;
-    const ctx = canvas.getContext('2d');
-    await page.render({ canvasContext: ctx, viewport }).promise;
-    pages[n] = canvas;
-    wrap.appendChild(canvas);
+    try {
+      const page = await pdf.getPage(n);
+      let viewport = page.getViewport({ scale: 1.4 });
+      const MAX = 4096;
+      if (viewport.width > MAX || viewport.height > MAX) {
+        const scale = Math.min(MAX / viewport.width, MAX / viewport.height, 1.4);
+        viewport = page.getViewport({ scale });
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      const ctx = canvas.getContext('2d');
+      await page.render({ canvasContext: ctx, viewport }).promise;
+      pages[n] = canvas;
+      wrap.appendChild(canvas);
+    } catch (_e) {
+      const el = document.createElement('p');
+      el.className = 'pane-empty';
+      el.textContent = `Não foi possível renderizar a página ${n}.`;
+      wrap.appendChild(el);
+    }
   };
 
   const nearestPage = () => {
