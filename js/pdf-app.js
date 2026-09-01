@@ -124,6 +124,7 @@ async function renderWorkspace(appEl, scenario) {
 
   const cleanup = () => {
     if (activeObjectUrl) { URL.revokeObjectURL(activeObjectUrl); activeObjectUrl = null; }
+    document.removeEventListener('keydown', onEscapeExit);
     statusbar.remove();
     chrome.remove();
     document.title = 'Sayonara';
@@ -163,8 +164,12 @@ async function renderWorkspace(appEl, scenario) {
   });
   chrome.querySelector('[data-act=present]').addEventListener('click', present);
   statusbar.addEventListener('click', () => { if (ws.root.classList.contains('mode-present')) exit(); });
-
+  document.addEventListener('keydown', onEscapeExit);
   window.addEventListener('hashchange', cleanup, { once: true });
+
+  function onEscapeExit(e) {
+    if (e.key === 'Escape' && ws.root.classList.contains('mode-present')) exit();
+  }
 
   mountViewer(ws.panes.left, leftDesc, { onPage: (n) => window.__sayWorkspace.setPage(n) });
   mountViewer(ws.panes.rightBottom, rightDesc, {});

@@ -30,8 +30,8 @@ export function buildWorkspace(appEl, active = { left: true, rightBottom: true }
   const emit = () => listeners.forEach((cb) => cb({ fracV, fracH }));
 
   const apply = () => {
-    root.style.setProperty('--frac-v', fracV);
-    root.style.setProperty('--frac-h', fracH);
+    root.style.setProperty('--frac-v', `${fracV * 100}%`);
+    root.style.setProperty('--frac-h', `${fracH * 100}%`);
   };
   apply();
 
