@@ -246,6 +246,7 @@ async function renderHome(appEl, seq) {
   };
   searchBox.addEventListener('input', applySearch);
   clearBtn.addEventListener('click', () => { searchBox.value = ''; searchBox.focus(); applySearch(); });
+  root.querySelector('[data-act=new]').addEventListener('click', () => { window.location.hash = '#/editor'; });
   appEl.appendChild(root);
   renderList(all);
 }
